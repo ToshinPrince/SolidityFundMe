@@ -13,5 +13,9 @@
     "hardhat-gas-reporter": "^1.0.8",
     "solidity-coverage": "^0.8.0",
     "typechain": "^8.1.0"
+  },
+  "version": "0.0.0",
+  "dependencies": {
+    "solhint": "^3.6.2"
   }
 }
