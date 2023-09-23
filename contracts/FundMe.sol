@@ -8,10 +8,10 @@ pragma solidity ^0.8.8;
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 contract FundMe {
-    uint256 public minimumUsd = 50;
+    uint256 public minimumUsd = 50 * 1e18; //1 * 10 ** 18
 
     function fund() public payable {
-        require(msg.value > 1e18, "Didn't Send Enough"); //1e18 == 1 * 10 ** 18 == 1000000000000000000
+        require(getConversionRate(msg.value) > 1e18, "Didn't Send Enough"); //1e18 == 1 * 10 ** 18 == 1000000000000000000
         //18 decimals
     }
 
