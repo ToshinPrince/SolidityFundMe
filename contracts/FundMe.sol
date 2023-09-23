@@ -9,10 +9,21 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 contract FundMe {
     uint256 public minimumUsd = 50 * 1e18; //1 * 10 ** 18
+    // This array is tracking contributors addresses
+    address[] public funders;
+    //This mapping tracks the amount of contributions made by different Ethereum addresses.
+    mapping(address => uint256) addressToAmountFunded;
 
     function fund() public payable {
-        require(getConversionRate(msg.value) > 1e18, "Didn't Send Enough"); //1e18 == 1 * 10 ** 18 == 1000000000000000000
+        require(
+            getConversionRate(msg.value) > minimumUsd,
+            "Didn't Send Enough"
+        ); //1e18 == 1 * 10 ** 18 == 1000000000000000000
         //18 decimals
+        //Pushing funder address to the Array
+        funders.push(msg.sender);
+        //Mapping amount of ETH to address
+        addressToAmountFunded[msg.sender] = msg.value;
     }
 
     function getPrice() public view returns (uint256) {
