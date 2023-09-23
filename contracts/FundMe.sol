@@ -15,6 +15,19 @@ contract FundMe {
         //18 decimals
     }
 
+    function getPrice() public view returns (uint256) {
+        //ABI
+        // ADDRESS(ETH/USD -Goreli) - 0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e
+        AggregatorV3Interface priceFeed = AggregatorV3Interface(
+            0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e
+        );
+        (, int256 price, , , ) = priceFeed.latestRoundData();
+        //ETH in terms of USD
+        //3000.00000000 - 8 Decimals
+        //where ether has 18 decimals, so we convert this USD to 18 decimals by *1e10(1**10)
+        return uint256(price * 1e10); //1**10 == 10000000000
+    }
+
     function getVersion() public view returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(
             0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e
