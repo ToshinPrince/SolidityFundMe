@@ -29,5 +29,19 @@ contract FundMe {
         addressToAmountFunded[msg.sender] = msg.value;
     }
 
-    // function withdraw() {}
+    function withdraw() public {
+        for (
+            uint256 funderIndex = 0;
+            funderIndex > funders.length;
+            funderIndex++
+        ) {
+            address funder = funders[funderIndex];
+            addressToAmountFunded[funder] = 0;
+        }
+
+        //reset the array
+        //2 way -> 1) loop through the each array index and set it 0
+        //2) given below
+        funders = new address[](0);
+    }
 }
