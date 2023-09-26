@@ -16,6 +16,17 @@ contract FundMe {
     //This mapping tracks the amount of contributions made by different Ethereum addresses.
     mapping(address => uint256) public addressToAmountFunded;
 
+    address public owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(owner == msg.sender, "Not the owner");
+        _;
+    }
+
     function fund() public payable {
         require(
             // getConversionRate(msg.value) -> now we have transfered getConversionRate to library, so below code is valid.
@@ -29,7 +40,7 @@ contract FundMe {
         addressToAmountFunded[msg.sender] = msg.value;
     }
 
-    function withdraw() public {
+    function withdraw() public onlyOwner {
         for (
             uint256 funderIndex = 0;
             funderIndex > funders.length;
@@ -43,5 +54,17 @@ contract FundMe {
         //2 way -> 1) loop through the each array index and set it 0
         //2) given below
         funders = new address[](0);
+
+        // // There are 3 ways to withdraw(transfer, send & call)
+        // //1)transfer -> msg.sender = address, payable(msg.sender) = payable address
+        // payable(msg.sender).transfer(address(this).balance);
+        // // send
+        // bool sendSuccess = payable(msg.sender).send(address(this).balance);
+        // require(sendSuccess, "Send Failed");
+        //call
+        (bool callSuccess, ) = payable(msg.sender).call{
+            value: address(this).balance
+        }("");
+        require(callSuccess, "Call Failed");
     }
 }
