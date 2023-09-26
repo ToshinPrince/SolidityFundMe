@@ -7,30 +7,38 @@
 pragma solidity ^0.8.8;
 import "./PriceConverter.sol";
 
+error NotOwner(); //error helps save gas
+
 contract FundMe {
     using PriceConverter for uint256;
 
-    uint256 public minimumUsd = 50 * 1e18; //1 * 10 ** 18
+    // constant can not be changed - done for gas efficiency
+    uint256 public constant MINIMUN_USD = 50 * 1e18; //1 * 10 ** 18
     // This array is tracking contributors addresses
     address[] public funders;
     //This mapping tracks the amount of contributions made by different Ethereum addresses.
     mapping(address => uint256) public addressToAmountFunded;
 
-    address public owner;
+    // immutable can only be set once, here it will hammen in constructor - done for gas efficiency
+    address public immutable i_owner;
 
     constructor() {
-        owner = msg.sender;
+        i_owner = msg.sender;
     }
 
     modifier onlyOwner() {
-        require(owner == msg.sender, "Not the owner");
+        // require(i_owner == msg.sender, "Not the owner");
+
+        if (msg.sender != i_owner) {
+            revert NotOwner(); //error helps save gas
+        }
         _;
     }
 
     function fund() public payable {
         require(
             // getConversionRate(msg.value) -> now we have transfered getConversionRate to library, so below code is valid.
-            msg.value.getConversionRate() >= minimumUsd,
+            msg.value.getConversionRate() >= MINIMUN_USD,
             "Didn't Send Enough"
         ); //1e18 == 1 * 10 ** 18 == 1000000000000000000
         //18 decimals
