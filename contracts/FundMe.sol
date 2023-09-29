@@ -6,6 +6,7 @@
 
 pragma solidity ^0.8.8;
 import "./PriceConverter.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 error NotOwner(); //error helps save gas
 
@@ -22,8 +23,11 @@ contract FundMe {
     // immutable can only be set once, here it will hammen in constructor - done for gas efficiency
     address public immutable i_owner;
 
-    constructor() {
+    AggregatorV3Interface public priceFeed;
+
+    constructor(address priceFeedAddress) {
         i_owner = msg.sender;
+        priceFeed = AggregatorV3Interface(priceFeedAddress);
     }
 
     modifier onlyOwner() {
@@ -38,7 +42,7 @@ contract FundMe {
     function fund() public payable {
         require(
             // getConversionRate(msg.value) -> now we have transfered getConversionRate to library, so below code is valid.
-            msg.value.getConversionRate() >= MINIMUN_USD,
+            msg.value.getConversionRate(priceFeed) >= MINIMUN_USD,
             "Didn't Send Enough"
         ); //1e18 == 1 * 10 ** 18 == 1000000000000000000
         //18 decimals
