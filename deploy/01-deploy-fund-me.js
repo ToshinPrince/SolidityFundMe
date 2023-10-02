@@ -5,6 +5,10 @@
 
 const { network } = require("hardhat");
 
+// const helperConfig = require("../helper-hardhat-config");//or use these 2 lines ->Line1
+// const networkConfig = helperConfig.networkConfig;//->Line1
+const { networkConfig } = require("../helper-hardhat-config");
+
 // module.exports = async (hre) => {
 //   const { getNamedAccounts, deployments } = hre;
 //or
@@ -21,4 +25,12 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const { deployer } = getNamedAccounts;
   const chainId = network.config.chainId;
+
+  const ethUsdPriceFeedAddress = networkConfig[chainId]["ethUsdPriceFeed"];
+
+  const fundMe = await deploy("fundMe", {
+    from: deployer,
+    args: [ethUsdPriceFeedAddress], //Put Price Feed Address
+    log: true,
+  });
 };
