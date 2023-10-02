@@ -1,4 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
+// require("@nomiclabs/hardhat-waffle");
 require("hardhat-deploy");
 
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -15,10 +16,15 @@ module.exports = {
     ],
   },
   defaultNetwork: "hardhat",
-  networks: {},
+  networks: {
+    hardhat: {
+      chainId: 31337,
+    },
+  },
   namedAccounts: {
     deployer: {
       default: 0,
+      1: 0,
     },
   },
   //what happnes when we want to change chains
