@@ -12,6 +12,9 @@ const {
   developmentChains,
 } = require("../helper-hardhat-config");
 
+const { verify } = require("../utils/verify");
+require("dotenv").config();
+
 // module.exports = async (hre) => {
 //   const { getNamedAccounts, deployments } = hre;
 //or
@@ -46,6 +49,15 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     args: [ethUsdPriceFeedAddress], //Put Price Feed Address
     log: true,
   });
+  log("----------------------------------------------------------------------");
+
+  log("verifying....");
+  if (
+    !developmentChains.includes(network.name) &&
+    process.env.ETHERSCAN_API_KEY
+  ) {
+    await verify(fundMe.address, ethUsdPriceFeedAddress);
+  }
   log("----------------------------------------------------------------------");
 };
 
