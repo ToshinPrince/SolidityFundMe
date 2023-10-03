@@ -19,6 +19,7 @@
   "version": "0.0.0",
   "dependencies": {
     "@chainlink/contracts": "^0.7.1",
+    "dotenv": "^16.3.1",
     "solhint": "^3.6.2"
   }
 }
