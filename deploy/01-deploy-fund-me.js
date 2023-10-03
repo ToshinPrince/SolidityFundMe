@@ -7,7 +7,10 @@ const { network } = require("hardhat");
 
 // const helperConfig = require("../helper-hardhat-config");//or use these 2 lines ->Line1
 // const networkConfig = helperConfig.networkConfig;//->Line1
-const { networkConfig } = require("../helper-hardhat-config");
+const {
+  networkConfig,
+  developmentChains,
+} = require("../helper-hardhat-config");
 
 // module.exports = async (hre) => {
 //   const { getNamedAccounts, deployments } = hre;
@@ -23,14 +26,27 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   //deployer is an address provided by Hardhat. It typically represents the address that will deploy the contract.
   //network.config.chainId. The chain ID uniquely identifies the blockchain network you are connected to. Different blockchains and testnets have different chain IDs.
   const { deploy, log } = deployments;
-  const { deployer } = getNamedAccounts;
+  const { deployer } = await getNamedAccounts();
   const chainId = network.config.chainId;
 
-  const ethUsdPriceFeedAddress = networkConfig[chainId]["ethUsdPriceFeed"];
+  let ethUsdPriceFeedAddress;
 
-  const fundMe = await deploy("fundMe", {
+  if (chainId == 31337) {
+    const ethUsdAggregator = await deployments.get("MockV3Aggregator");
+    ethUsdPriceFeedAddress = ethUsdAggregator.address;
+  } else {
+    ethUsdPriceFeedAddress = await networkConfig[chainId]["ethUsdPriceFeed"];
+  }
+
+  log("--------------------------------------------------------------------");
+  log("Deploying FundMe and waiting for Confirmations....");
+
+  const fundMe = await deploy("FundMe", {
     from: deployer,
     args: [ethUsdPriceFeedAddress], //Put Price Feed Address
     log: true,
   });
+  log("----------------------------------------------------------------------");
 };
+
+module.exports.tags = ["all", "fundme"];
