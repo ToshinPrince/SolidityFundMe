@@ -48,10 +48,10 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     from: deployer,
     args: [ethUsdPriceFeedAddress], //Put Price Feed Address
     log: true,
+    waitConfirmations: network.config.blockConfirmations || 1,
   });
   log("----------------------------------------------------------------------");
 
-  log("verifying....");
   if (
     !developmentChains.includes(network.name) &&
     process.env.ETHERSCAN_API_KEY
