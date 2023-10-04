@@ -1,18 +1,27 @@
 // SPDX-License-Identifier: MIT
 
-//Get Funds from Users
-//Withdraw Funds
-//Set a minimum Funding value in USD
-
+//pragma
 pragma solidity ^0.8.8;
+//Imports
 import "./PriceConverter.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
-error NotOwner(); //error helps save gas
+//Error Codes
+error FundMe__NotOwner(); //error helps save gas
 
+//Interfaces, Libraries, Contracts
+
+/**
+ * @title A Contract for crowd funding
+ * @author Toshin Prince
+ * @notice This contract is to demo sample Funding Contract
+ * @dev This Implements price feeds as our library
+ */
 contract FundMe {
+    //Type Declarations
     using PriceConverter for uint256;
 
+    //State Variables
     // constant can not be changed - done for gas efficiency
     uint256 public constant MINIMUN_USD = 50 * 1e18; //1 * 10 ** 18
     // This array is tracking contributors addresses
@@ -25,20 +34,42 @@ contract FundMe {
 
     AggregatorV3Interface public priceFeed;
 
+    modifier onlyOwner() {
+        // require(i_owner == msg.sender, "Not the owner");
+
+        if (msg.sender != i_owner) {
+            revert FundMe__NotOwner(); //error helps save gas
+        }
+        _;
+    }
+
+    //Functions Order
+    // //constructor
+    // //receive
+    // //fallback
+    // //external
+    // //public
+    // //intrenal
+    // //private
+    // //view/pure
+
     constructor(address priceFeedAddress) {
         i_owner = msg.sender;
         priceFeed = AggregatorV3Interface(priceFeedAddress);
     }
 
-    modifier onlyOwner() {
-        // require(i_owner == msg.sender, "Not the owner");
-
-        if (msg.sender != i_owner) {
-            revert NotOwner(); //error helps save gas
-        }
-        _;
+    receive() external payable {
+        fund();
     }
 
+    fallback() external payable {
+        fund();
+    }
+
+    /**
+     * @notice This function funds this contract
+     * @dev This Implements price feeds as our library
+     */
     function fund() public payable {
         require(
             // getConversionRate(msg.value) -> now we have transfered getConversionRate to library, so below code is valid.
@@ -78,13 +109,5 @@ contract FundMe {
             value: address(this).balance
         }("");
         require(callSuccess, "Call Failed");
-    }
-
-    receive() external payable {
-        fund();
-    }
-
-    fallback() external payable {
-        fund();
     }
 }
