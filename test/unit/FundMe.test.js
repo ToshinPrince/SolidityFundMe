@@ -9,6 +9,8 @@ const { network } = require("hardhat/internal/lib/hardhat-lib");
       let fundMe;
       let deployer;
       let mockV3Aggregator;
+      const sendValue = ethers.utils.parseEther("1"); //1Ether
+
       beforeEach(async () => {
         //deploy our fundMe Contract
         //using hardhat-deploy
@@ -45,6 +47,12 @@ const { network } = require("hardhat/internal/lib/hardhat-lib");
           await expect(fundMe.fund()).to.be.revertedWith(
             "Didn't Send Enough ETH"
           );
+        });
+
+        it("Update the Amount Funded Data structure", async function () {
+          await fundMe.fund({ value: sendValue });
+          const response = await fundMe.addressToAmountFunded(deployer);
+          assert.equal(response.toString(), sendValue.toString());
         });
       });
     });
