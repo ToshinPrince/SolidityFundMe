@@ -39,4 +39,12 @@ const { network } = require("hardhat/internal/lib/hardhat-lib");
           assert.equal(response, mockV3Aggregator.address);
         });
       });
+
+      describe("fund", function () {
+        it("Fails, If you dont send enough ETH", async function () {
+          await expect(fundMe.fund()).to.be.revertedWith(
+            "Didn't Send Enough ETH"
+          );
+        });
+      });
     });

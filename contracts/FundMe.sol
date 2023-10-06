@@ -74,7 +74,7 @@ contract FundMe {
         require(
             // getConversionRate(msg.value) -> now we have transfered getConversionRate to library, so below code is valid.
             msg.value.getConversionRate(priceFeed) >= MINIMUN_USD,
-            "Didn't Send Enough"
+            "Didn't Send Enough ETH"
         ); //1e18 == 1 * 10 ** 18 == 1000000000000000000
         //18 decimals
         //Pushing funder address to the Array
