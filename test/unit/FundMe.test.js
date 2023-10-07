@@ -54,5 +54,11 @@ const { network } = require("hardhat/internal/lib/hardhat-lib");
           const response = await fundMe.addressToAmountFunded(deployer);
           assert.equal(response.toString(), sendValue.toString());
         });
+
+        it("add funders to array of funders", async function () {
+          await fundMe.fund({ value: sendValue });
+          const funder = await fundMe.funders(0);
+          assert(funder, deployer.address);
+        });
       });
     });
