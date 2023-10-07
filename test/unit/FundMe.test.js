@@ -61,4 +61,33 @@ const { network } = require("hardhat/internal/lib/hardhat-lib");
           assert(funder, deployer.address);
         });
       });
+
+      describe("Withdraw", function () {
+        beforeEach(async function () {
+          await fundMe.fund({ value: sendValue });
+        });
+
+        it("Withdraw ETH form Single founder", async function () {
+          //Arrange
+          const startingFundMeBalance = await fundMe.provider.getBalance(
+            fundMe.address
+          );
+          const startingDeployerBalance = await fundMe.provider.getBalance(
+            deployer
+          );
+
+          //act
+          const transactionResponse = await fundMe.withdraw();
+          const transactionReciept = await transactionResponse.wait(1);
+
+          const endingFundMeBalance = await fundMe.provider.getBalance(
+            fundMe.address
+          );
+          const endingDeployerBalance = await fundMe.provider.getBalance(
+            deployer
+          );
+          //assert
+          assert.equal(endingFundMeBalance, 0);
+        });
+      });
     });
