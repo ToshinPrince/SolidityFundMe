@@ -123,6 +123,15 @@ const { network } = require("hardhat/internal/lib/hardhat-lib");
             deployer
           );
 
+          console.log(
+            "Starting FundMe Balance:",
+            startingFundMeBalance.toString()
+          );
+          console.log(
+            "Starting Deployer Balance:",
+            startingDeployerBalance.toString()
+          );
+
           //Act
           const transactionResponse = await fundMe.withdraw();
           const transactionReceipt = await transactionResponse.wait(1);
@@ -136,12 +145,29 @@ const { network } = require("hardhat/internal/lib/hardhat-lib");
             deployer
           );
 
+          console.log("Ending FundMe Balance:", endingFundMeBalance.toString());
+          console.log(
+            "Ending Deployer Balance:",
+            endingDeployerBalance.toString()
+          );
+
           //Assert
           assert.equal(endingFundMeBalance, 0);
           assert.equal(
             startingFundMeBalance.add(startingDeployerBalance).toString(),
             endingDeployerBalance.add(gasCost).toString()
           );
+
+          //Make sure that the funders are reset Properly
+          await expect(fundMe.funders(0)).to.be.reverted;
+
+          for (i = 1; i < 6; i++) {
+            let account = await fundMe.addressToAmountFunded(
+              accounts[i].address
+            );
+            // console.log(account.toString());
+            assert.equal(account, 0);
+          }
         });
       });
     });
