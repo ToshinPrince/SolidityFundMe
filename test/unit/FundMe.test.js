@@ -169,5 +169,14 @@ const { network } = require("hardhat/internal/lib/hardhat-lib");
             assert.equal(account, 0);
           }
         });
+
+        it("only Allows the Owner to withdraw", async function () {
+          const accounts = await ethers.getSigners();
+          const fundMeConnectedAddress = await fundMe.connect(accounts[1]);
+
+          await expect(fundMeConnectedAddress.withdraw()).to.be.revertedWith(
+            "FundMe__NotOwner"
+          );
+        });
       });
     });
