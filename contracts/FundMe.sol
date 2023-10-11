@@ -25,14 +25,15 @@ contract FundMe {
     // constant can not be changed - done for gas efficiency
     uint256 public constant MINIMUN_USD = 50 * 1e18; //1 * 10 ** 18
     // This array is tracking contributors addresses
-    address[] public funders;
+    address[] public s_funders;
     //This mapping tracks the amount of contributions made by different Ethereum addresses.
-    mapping(address => uint256) public addressToAmountFunded;
+    //s is apended for storage variable - just to have idea that storage is going to cost more
+    mapping(address => uint256) public s_addressToAmountFunded;
 
     // immutable can only be set once, here it will hammen in constructor - done for gas efficiency
     address public immutable i_owner;
 
-    AggregatorV3Interface public priceFeed;
+    AggregatorV3Interface public s_priceFeed;
 
     modifier onlyOwner() {
         // require(i_owner == msg.sender, "Not the owner");
@@ -55,7 +56,7 @@ contract FundMe {
 
     constructor(address priceFeedAddress) {
         i_owner = msg.sender;
-        priceFeed = AggregatorV3Interface(priceFeedAddress);
+        s_priceFeed = AggregatorV3Interface(priceFeedAddress);
     }
 
     receive() external payable {
@@ -73,30 +74,30 @@ contract FundMe {
     function fund() public payable {
         require(
             // getConversionRate(msg.value) -> now we have transfered getConversionRate to library, so below code is valid.
-            msg.value.getConversionRate(priceFeed) >= MINIMUN_USD,
+            msg.value.getConversionRate(s_priceFeed) >= MINIMUN_USD,
             "Didn't Send Enough ETH"
         ); //1e18 == 1 * 10 ** 18 == 1000000000000000000
         //18 decimals
         //Pushing funder address to the Array
-        funders.push(msg.sender);
+        s_funders.push(msg.sender);
         //Mapping amount of ETH to address
-        addressToAmountFunded[msg.sender] = msg.value;
+        s_addressToAmountFunded[msg.sender] = msg.value;
     }
 
     function withdraw() public onlyOwner {
         for (
             uint256 funderIndex = 0;
-            funderIndex < funders.length;
+            funderIndex < s_funders.length;
             funderIndex++
         ) {
-            address funder = funders[funderIndex];
-            addressToAmountFunded[funder] = 0;
+            address funder = s_funders[funderIndex];
+            s_addressToAmountFunded[funder] = 0;
         }
 
         //reset the array
         //2 way -> 1) loop through, each array index and set it 0
         //2) given below
-        funders = new address[](0);
+        s_funders = new address[](0);
 
         // // There are 3 ways to withdraw(transfer, send & call)
         // //1)transfer -> msg.sender = address, payable(msg.sender) = payable address
