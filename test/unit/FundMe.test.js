@@ -178,5 +178,108 @@ const { network } = require("hardhat/internal/lib/hardhat-lib");
             "FundMe__NotOwner"
           );
         });
+
+        it("Withdraw ETH from Single founder, cheaperWithdraw", async function () {
+          //Arrange
+          //fundMe contract already has ethers
+          //so  we can use fundMe.provider in place of ethers.provider, doesnt matter
+          //Both are correct
+          const startingFundMeBalance = await fundMe.provider.getBalance(
+            fundMe.address
+          );
+          // we can also use this code-
+          // const startingFundMeBalance = await ethers.provider.getBalance(
+          //   fundMe.address
+          // );
+          const startingDeployerBalance = await fundMe.provider.getBalance(
+            deployer
+          );
+
+          //act
+          const transactionResponse = await fundMe.cheaperWithdraw();
+          const transactionReceipt = await transactionResponse.wait(1);
+          const { gasUsed, effectiveGasPrice } = transactionReceipt;
+          const gasCost = gasUsed.mul(effectiveGasPrice);
+
+          const endingFundMeBalance = await fundMe.provider.getBalance(
+            fundMe.address
+          );
+
+          // we can also use console.log for debugging - console.log is buildin
+          // console.log("endingFundMeBalance:", endingFundMeBalance.toString());
+
+          const endingDeployerBalance = await fundMe.provider.getBalance(
+            deployer
+          );
+          //assert
+          assert.equal(endingFundMeBalance, 0);
+          assert.equal(
+            startingFundMeBalance.add(startingDeployerBalance).toString(),
+            endingDeployerBalance.add(gasCost).toString()
+          );
+        });
+
+        it("Cheaper Withdraw testing, cheaperWithdraw", async function () {
+          const accounts = await ethers.getSigners();
+          for (let i = 1; i < 6; i++) {
+            const fundMeConnectedContract = await fundMe.connect(accounts[i]);
+            await fundMeConnectedContract.fund({ value: sendValue });
+          }
+
+          //Arrange
+          const startingFundMeBalance = await fundMe.provider.getBalance(
+            fundMe.address
+          );
+
+          const startingDeployerBalance = await fundMe.provider.getBalance(
+            deployer
+          );
+
+          console.log(
+            "Starting FundMe Balance:",
+            startingFundMeBalance.toString()
+          );
+          console.log(
+            "Starting Deployer Balance:",
+            startingDeployerBalance.toString()
+          );
+
+          //Act
+          const transactionResponse = await fundMe.cheaperWithdraw();
+          const transactionReceipt = await transactionResponse.wait(1);
+          const { gasUsed, effectiveGasPrice } = transactionReceipt;
+          const gasCost = gasUsed.mul(effectiveGasPrice);
+
+          const endingFundMeBalance = await fundMe.provider.getBalance(
+            fundMe.address
+          );
+          const endingDeployerBalance = await fundMe.provider.getBalance(
+            deployer
+          );
+
+          console.log("Ending FundMe Balance:", endingFundMeBalance.toString());
+          console.log(
+            "Ending Deployer Balance:",
+            endingDeployerBalance.toString()
+          );
+
+          //Assert
+          assert.equal(endingFundMeBalance, 0);
+          assert.equal(
+            startingFundMeBalance.add(startingDeployerBalance).toString(),
+            endingDeployerBalance.add(gasCost).toString()
+          );
+
+          //Make sure that the s_funders are reset Properly
+          await expect(fundMe.s_funders(0)).to.be.reverted;
+
+          for (i = 1; i < 6; i++) {
+            let account = await fundMe.s_addressToAmountFunded(
+              accounts[i].address
+            );
+            // console.log(account.toString());
+            assert.equal(account, 0);
+          }
+        });
       });
     });
