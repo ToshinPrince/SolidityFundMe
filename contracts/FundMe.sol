@@ -111,4 +111,25 @@ contract FundMe {
         }("");
         require(callSuccess, "Call Failed");
     }
+
+    function cheaperWithdraw() public onlyOwner {
+        address[] memory funders = s_funders;
+        //mappings can't be en memory
+
+        for (
+            uint256 fundersIndex = 0;
+            fundersIndex <= funders.length;
+            fundersIndex++
+        ) {
+            address funder = funders[fundersIndex];
+            s_addressToAmountFunded[funder] = 0;
+        }
+
+        s_funders = new address[](0);
+
+        (bool callSuccess, ) = payable(msg.sender).call{
+            value: address(this).balance
+        }("");
+        require(callSuccess, "Call Failed");
+    }
 }
