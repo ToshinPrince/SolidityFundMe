@@ -37,7 +37,7 @@ const { network } = require("hardhat/internal/lib/hardhat-lib");
 
       describe("constructor", function () {
         it("Sets the Aggregator Address Correctly", async function () {
-          const response = await fundMe.priceFeed();
+          const response = await fundMe.s_priceFeed();
           assert.equal(response, mockV3Aggregator.address);
         });
       });
@@ -51,13 +51,13 @@ const { network } = require("hardhat/internal/lib/hardhat-lib");
 
         it("Update the Amount Funded Data structure", async function () {
           await fundMe.fund({ value: sendValue });
-          const response = await fundMe.addressToAmountFunded(deployer);
+          const response = await fundMe.s_addressToAmountFunded(deployer);
           assert.equal(response.toString(), sendValue.toString());
         });
 
-        it("add funders to array of funders", async function () {
+        it("add s_funders to array of s_funders", async function () {
           await fundMe.fund({ value: sendValue });
-          const funder = await fundMe.funders(0);
+          const funder = await fundMe.s_funders(0);
           assert(funder, deployer.address);
         });
       });
@@ -107,7 +107,7 @@ const { network } = require("hardhat/internal/lib/hardhat-lib");
           );
         });
 
-        it("Allows us to withdraw with multiple Funders", async function () {
+        it("Allows us to withdraw with multiple s_funders", async function () {
           const accounts = await ethers.getSigners();
           for (let i = 1; i < 6; i++) {
             const fundMeConnectedContract = await fundMe.connect(accounts[i]);
@@ -158,11 +158,11 @@ const { network } = require("hardhat/internal/lib/hardhat-lib");
             endingDeployerBalance.add(gasCost).toString()
           );
 
-          //Make sure that the funders are reset Properly
-          await expect(fundMe.funders(0)).to.be.reverted;
+          //Make sure that the s_funders are reset Properly
+          await expect(fundMe.s_funders(0)).to.be.reverted;
 
           for (i = 1; i < 6; i++) {
-            let account = await fundMe.addressToAmountFunded(
+            let account = await fundMe.s_addressToAmountFunded(
               accounts[i].address
             );
             // console.log(account.toString());
