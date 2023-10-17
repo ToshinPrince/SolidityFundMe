@@ -12,7 +12,7 @@ developmentChains.includes(network.name)
         deployer = (await getNamedAccounts()).deployer;
         fundMe = await ethers.getContract("FundMe", deployer);
       });
-      //Allows People to fund and withdraw
+      //Allows to fund and withdraw
       it("Allows People to fund and withdraw", async function () {
         await fundMe.fund({ value: sendValue });
         await fundMe.withdraw();
