@@ -11,20 +11,29 @@ developmentChains.includes(network.name)
       console.log("Deploying Contract, before each");
       beforeEach(async () => {
         deployer = (await getNamedAccounts()).deployer;
+
         fundMe = await ethers.getContract("FundMe", deployer);
+        console.log(
+          "Initial contract balance: ",
+          (await fundMe.provider.getBalance(fundMe.address)).toString()
+        );
       });
 
       it("allows people to fund and withdraw", async function () {
         console.log("fundTxResponse");
         const fundTxResponse = await fundMe.fund({
           value: sendValue,
-          gasLimit: 9000000,
+          gasLimit: 1000000,
+          gasPrice: ethers.utils.parseUnits("50", "gwei"),
         });
         console.log("fundTxResponse.wait()");
-        await fundTxResponse.wait(1);
+        await fundTxResponse.wait();
         console.log("withdrawTxResponse");
-        const withdrawTxResponse = await fundMe.withdraw({ gasLimit: 9000000 });
-        await withdrawTxResponse.wait(1);
+        const withdrawTxResponse = await fundMe.withdraw({
+          gasLimit: 1000000,
+          gasPrice: ethers.utils.parseUnits("50", "gwei"),
+        });
+        await withdrawTxResponse.wait();
 
         const endingFundMeBalance = await fundMe.provider.getBalance(
           fundMe.address

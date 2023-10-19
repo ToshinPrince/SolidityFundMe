@@ -7,6 +7,8 @@ async function main() {
   console.log("Funding COntract...");
   const transactionResponse = await fundMe.fund({
     value: ethers.utils.parseEther("0.1"),
+    gasLimit: 1000000,
+    gasPrice: ethers.utils.parseUnits("50", "gwei"),
   });
 
   await transactionResponse.wait();

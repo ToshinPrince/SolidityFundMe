@@ -23,7 +23,7 @@ contract FundMe {
 
     //State Variables
     // constant can not be changed - done for gas efficiency
-    uint256 public constant MINIMUN_USD = 50 * 1e18; //1 * 10 ** 18
+    uint256 public constant MINIMUN_USD = 50 * 10 ** 18; //1 * 10 ** 18
     // This array is tracking contributors addresses
     address[] private s_funders;
     //This mapping tracks the amount of contributions made by different Ethereum addresses.
@@ -78,10 +78,11 @@ contract FundMe {
             "Didn't Send Enough ETH"
         ); //1e18 == 1 * 10 ** 18 == 1000000000000000000
         //18 decimals
+
+        //Mapping amount of ETH to address
+        s_addressToAmountFunded[msg.sender] += msg.value;
         //Pushing funder address to the Array
         s_funders.push(msg.sender);
-        //Mapping amount of ETH to address
-        s_addressToAmountFunded[msg.sender] = msg.value;
     }
 
     function withdraw() public onlyOwner {
@@ -106,9 +107,10 @@ contract FundMe {
         // bool sendSuccess = payable(msg.sender).send(address(this).balance);
         // require(sendSuccess, "Send Failed");
         //call
-        (bool callSuccess, ) = payable(msg.sender).call{
-            value: address(this).balance
-        }("");
+        // (bool callSuccess, ) = payable(msg.sender).call{
+        //     value: address(this).balance
+        // }("");
+        (bool callSuccess, ) = i_owner.call{value: address(this).balance}("");
         require(callSuccess, "Call Failed");
     }
 
@@ -127,9 +129,10 @@ contract FundMe {
 
         s_funders = new address[](0);
 
-        (bool callSuccess, ) = payable(msg.sender).call{
-            value: address(this).balance
-        }("");
+        // (bool callSuccess, ) = payable(msg.sender).call{
+        //     value: address(this).balance
+        // }("");
+        (bool callSuccess, ) = i_owner.call{value: address(this).balance}("");
         require(callSuccess, "Call Failed");
     }
 
