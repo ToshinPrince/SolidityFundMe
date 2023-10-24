@@ -23,4 +23,8 @@ contract FunWithStorage {
         bool otherVar = someBool; // SLOAD
         // ^^ memory variables
     }
+
+    function getFavoriteNumber() public view returns (uint256) {
+        return favoriteNumber;
+    }
 }
